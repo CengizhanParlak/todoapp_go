@@ -1,8 +1,8 @@
 package model
 
-type Status string
+type TodoStatus int64
 
 const (
-	Completed  Status = "completed"
-	Incomplete Status = "incomplete"
+	Completed  TodoStatus = 1
+	Incomplete            = 0
 )
