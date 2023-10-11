@@ -2,6 +2,7 @@ package main
 
 import (
 	"com/khan/todo/internal/model"
+	"database/sql"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -9,10 +10,16 @@ import (
 	"time"
 )
 
+var DB *sql.DB
+
 func main() {
-	db := initializeDb()
-	defer db.DB()
-	db.AutoMigrate(&model.Todo{})
+	DB := initializeDb()
+	defer DB.DB()
+	err := DB.AutoMigrate(&model.Todo{})
+
+	if err != nil {
+		panic("Failed to migrate the database")
+	}
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
@@ -30,10 +37,10 @@ func main() {
 		todo.CreatedAt = time.Now()
 		todo.UpdatedAt = time.Now()
 
-		db.Create(&todo)
+		DB.Create(&todo)
 
-		if db.Error != nil {
-			return c.JSON(http.StatusInternalServerError, db.Error)
+		if DB.Error != nil {
+			return c.JSON(http.StatusInternalServerError, DB.Error)
 		}
 
 		return c.JSON(http.StatusOK, todo)
